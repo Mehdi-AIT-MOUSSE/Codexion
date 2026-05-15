@@ -9,19 +9,40 @@ void heap_init(t_dongle *dongle, int capacity)
 }
 
 
+// int add_to_heap(t_heap *waiters, t_coder *coder)
+// {
+//     int index;
+
+//     index = waiters->size;
+//     if (waiters->size < waiters->capacity)
+//     {
+//         waiters->data[index] = coder;
+//         waiters->size++;
+//         return (1);
+//     }
+
+//     return (0);
+// }
+
 int add_to_heap(t_heap *waiters, t_coder *coder)
 {
     int index;
 
     index = waiters->size;
-    if (waiters->size < waiters->capacity)
-    {
-        waiters->data[index] = coder;
-        waiters->size++;
-        return (1);
-    }
 
-    return (0);
+    if (waiters->size >= 1 && waiters->data[0] == coder)
+        return (1);
+    
+    if (waiters->size == 2 && waiters->data[1] == coder)
+        return (1);
+    
+    if (waiters->size >= 2)
+        return (0);
+    
+    waiters->data[index] = coder;
+    waiters->size++;
+
+    return (1);
 }
 
 t_coder	*pop_from_heap(t_heap *waiters)
@@ -42,6 +63,38 @@ t_coder	*pop_from_heap(t_heap *waiters)
 	return (first);
 }
 
+void	remove_from_heap(t_heap *waiters, t_coder *coder)
+{
+	if (waiters->size == 0)
+		return ;
+
+	/*
+	** coder at front
+	*/
+	if (waiters->data[0] == coder)
+	{
+		pop_from_heap(waiters);
+		return ;
+	}
+
+	/*
+	** coder at second position
+	*/
+	if (waiters->size == 2
+		&& waiters->data[1] == coder)
+	{
+		waiters->data[1] = NULL;
+		waiters->size--;
+	}
+}
+
+t_coder	*heap_top(t_heap *waiters)
+{
+	if (waiters->size == 0)
+		return (NULL);
+
+	return (waiters->data[0]);
+}
 
 void	swap_heap(t_heap *waiters)
 {

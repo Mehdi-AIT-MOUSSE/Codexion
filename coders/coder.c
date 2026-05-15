@@ -38,8 +38,6 @@
 // }
 
 
-#include "codexion.h"
-
 void	release_dongles(t_coder *coder)
 {
 	long	now;
@@ -50,8 +48,7 @@ void	release_dongles(t_coder *coder)
 
 	coder->left->taken = 0;
 	coder->left->released_at = now;
-	coder->left->available_at = now
-		+ coder->info->dongle_cooldown;
+	coder->left->available_at = now + coder->info->dongle_cooldown;
 
 	pthread_mutex_unlock(&coder->left->mutex);
 
@@ -67,9 +64,10 @@ void	release_dongles(t_coder *coder)
 static void wait_permition(t_coder *coder)
 {
     pthread_mutex_lock(&coder->mutex);
-    while (!coder->granted)
+    while (!coder->granted && !simulation_stopped(coder->info))
+    {
         pthread_cond_wait(&coder->cond, &coder->mutex);
-
+    }
     coder->granted = 0;
     pthread_mutex_unlock(&coder->mutex); 
 }
@@ -78,17 +76,24 @@ void *coder_routine(void *arg)
 {
     t_coder *coder;
 
+    
+
     coder = (t_coder *)arg;
-    if (coder->id % 2)
-        usleep(500);
 
     while (!simulation_stopped(coder->info))
     {
+        pthread_mutex_lock(&coder->left->mutex);
+		add_to_heap(&coder->left->waiters, coder);
+		pthread_mutex_unlock(&coder->left->mutex);
+
+		pthread_mutex_lock(&coder->right->mutex);
+		add_to_heap(&coder->right->waiters, coder);
+		pthread_mutex_unlock(&coder->right->mutex);
+
         
         wait_permition(coder);        
         
-        
-        // after taking the s_dongle
+        // after taking the dongle
         
         pthread_mutex_lock(&coder->mutex);
         coder->last_compile_start = get_time_ms();
@@ -104,18 +109,32 @@ void *coder_routine(void *arg)
         pthread_mutex_unlock(&coder->mutex);
  
         
-        
         log_state(coder, "is compiling");
         precise_sleep(coder->info->t_compile, coder->info);
 
         release_dongles(coder);
 
+        if (simulation_stopped(coder->info))
+	        return (NULL);
         log_state(coder, "is debugging");
         precise_sleep(coder->info->t_debug, coder->info);
 
+
+        if (simulation_stopped(coder->info))
+	        return (NULL);
         log_state(coder, "is refactoring");
         precise_sleep(coder->info->t_refactor, coder->info);
+        if (simulation_stopped(coder->info))
+	    return (NULL);
     }
 
     return (NULL);
 }
+
+
+
+
+
+
+
+

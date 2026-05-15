@@ -7,9 +7,10 @@ SRCS    = $(SRCDIR)/main.c   \
           $(SRCDIR)/parse.c  \
           $(SRCDIR)/init.c   \
 		  $(SRCDIR)/stop.c  \
+          $(SRCDIR)/heap.c \
           $(SRCDIR)/coder.c \
-          $(SRCDIR)/monitor.c \
-          $(SRCDIR)/heap.c 
+          $(SRCDIR)/scheduler.c \
+          $(SRCDIR)/monitor.c 
 OBJS    = $(SRCS:.c=.o)
 
 all: $(NAME)

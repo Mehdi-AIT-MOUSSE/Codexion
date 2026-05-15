@@ -92,6 +92,7 @@ int start_simulation(t_info *info)
         i++;
     }
 
+    pthread_create(&info->scheduler_thread,NULL,scheduler_routine,info);
     pthread_create(&info->monitor,NULL,monitor_routine,info);
 
     i = 0;
@@ -102,6 +103,7 @@ int start_simulation(t_info *info)
     }
 
     pthread_join(info->monitor, NULL);
+    pthread_join(info->scheduler_thread, NULL);
 
     return (0);
 }

@@ -92,6 +92,7 @@ struct s_info
     int                 finished_coders;
 
 	pthread_t			monitor;
+	pthread_t			scheduler_thread;
 
 	pthread_mutex_t		stop_mutex;
 	pthread_mutex_t		print_mutex;
@@ -119,6 +120,7 @@ int start_simulation(t_info *info); // start_simulation.c
 ** Threads
 */
 void	*coder_routine(void *arg);
+void	*scheduler_routine(void *arg);
 void	*monitor_routine(void *arg);
 
 // coder
@@ -146,6 +148,9 @@ void	log_state(t_coder *coder, char *msg);
 int		simulation_stopped(t_info *info);
 void	stop_simulation(t_info *info);
 
+
+
+
 /*
 ** Dongles
 */
@@ -155,14 +160,13 @@ void	stop_simulation(t_info *info);
 /*
 ** Heap / Queue
 */
-// int		heap_push(t_heap *heap, t_coder *coder, int scheduler);
-// t_coder	*heap_pop(t_heap *heap, int scheduler);
-// t_coder	*heap_top(t_heap *heap);
-
 void heap_init(t_dongle *dongle, int capacity);
 int add_to_heap(t_heap *waiters, t_coder *coder);
 t_coder	*pop_from_heap(t_heap *waiters);
+void	remove_from_heap(t_heap *waiters, t_coder *coder);
+t_coder	*heap_top(t_heap *waiters);
 void	swap_heap(t_heap *waiters);
+
 
 /*
 ** Cleanup
