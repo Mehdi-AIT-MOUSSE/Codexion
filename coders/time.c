@@ -17,3 +17,17 @@ long timestamp_ms(t_info *info)
 {
     return (get_time_ms() - info->start_time);
 }
+
+void precise_sleep(long ms, t_info *info)
+{
+    long start;
+
+    start = get_time_ms();
+
+    while (!simulation_stopped(info))
+    {
+        if (get_time_ms() - start >= ms)
+            break ;
+        usleep(500);
+    }
+}

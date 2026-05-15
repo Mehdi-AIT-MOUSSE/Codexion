@@ -8,10 +8,6 @@
 # include <unistd.h>
 # include <string.h>
 
-/*
-** Forward declarations
-*/
-
 #define FIFO 0
 #define EDF 1
 
@@ -40,9 +36,11 @@ struct s_dongle
 
 	long				available_at;
 
-	pthread_mutex_t		mutex;
-	pthread_cond_t		cond;
+	long				released_at;
 
+	pthread_mutex_t		mutex;
+	
+	
 	t_heap				waiters;
 };
 
@@ -52,15 +50,17 @@ struct s_dongle
 struct s_coder
 {
 	int					id;
-
+	
 	int					compile_count;
-
+	
 	long				last_compile_start;
 	long				request_time;
-
+    int					granted;
+	
 	pthread_t			thread;
     pthread_mutex_t     mutex;
-    
+	pthread_cond_t		cond;
+
 	t_dongle			*left;
 	t_dongle			*right;
 
@@ -121,6 +121,9 @@ int start_simulation(t_info *info); // start_simulation.c
 void	*coder_routine(void *arg);
 void	*monitor_routine(void *arg);
 
+// coder
+void	release_dongles(t_coder *coder);
+
 /*
 ** Time
 */
@@ -146,15 +149,20 @@ void	stop_simulation(t_info *info);
 /*
 ** Dongles
 */
-int		take_dongles(t_coder *coder);
-void	release_dongles(t_coder *coder);
+// int		take_dongles(t_coder *coder);
+// void	release_dongles(t_coder *coder);
 
 /*
 ** Heap / Queue
 */
-int		heap_push(t_heap *heap, t_coder *coder, int scheduler);
-t_coder	*heap_pop(t_heap *heap, int scheduler);
-t_coder	*heap_top(t_heap *heap);
+// int		heap_push(t_heap *heap, t_coder *coder, int scheduler);
+// t_coder	*heap_pop(t_heap *heap, int scheduler);
+// t_coder	*heap_top(t_heap *heap);
+
+void heap_init(t_dongle *dongle, int capacity);
+int add_to_heap(t_heap *waiters, t_coder *coder);
+t_coder	*pop_from_heap(t_heap *waiters);
+void	swap_heap(t_heap *waiters);
 
 /*
 ** Cleanup

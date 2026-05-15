@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 
     start_simulation(&info);
 
-    // cleanup(&info);
+    cleanup(&info);
 
     return (0);
 }

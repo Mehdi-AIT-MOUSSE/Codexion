@@ -8,8 +8,8 @@ SRCS    = $(SRCDIR)/main.c   \
           $(SRCDIR)/init.c   \
 		  $(SRCDIR)/stop.c  \
           $(SRCDIR)/coder.c \
-          $(SRCDIR)/monitor.c 
-#           $(SRCDIR)/dongle.c 
+          $(SRCDIR)/monitor.c \
+          $(SRCDIR)/heap.c 
 OBJS    = $(SRCS:.c=.o)
 
 all: $(NAME)
