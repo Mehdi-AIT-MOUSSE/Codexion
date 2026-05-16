@@ -39,8 +39,10 @@ static int	can_grant(t_coder *coder)
 static void	grant_dongles(t_coder *coder)
 {
 	coder->left->taken = 1;
+	log_state(coder, "has taken a dongle");
 
 	coder->right->taken = 1;
+	log_state(coder, "has taken a dongle");
 
 	remove_from_heap(&coder->left->waiters, coder);
 	remove_from_heap(&coder->right->waiters, coder);

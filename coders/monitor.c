@@ -4,6 +4,7 @@ void *monitor_routine(void *arg)
 {
     t_info  *info;
     int     i;
+    int     finish;
 
     info = (t_info *)arg;
 
@@ -18,8 +19,8 @@ void *monitor_routine(void *arg)
             if (get_time_ms() - info->coders[i].last_compile_start > info->t_burnout)
             {
                 log_state(&info->coders[i], "burned out");
-                stop_simulation(info);
                 pthread_mutex_unlock(&info->coders[i].mutex);
+                stop_simulation(info);
                 return (NULL);
             }
 
@@ -29,13 +30,14 @@ void *monitor_routine(void *arg)
         }
 
         pthread_mutex_lock(&info->finish_mutex);
-        if (info->finished_coders >= info->nb_coders)
+        finish = info->finished_coders;
+        pthread_mutex_unlock(&info->finish_mutex);
+      
+        if (finish >= info->nb_coders)
         {
             stop_simulation(info);
-            pthread_mutex_unlock(&info->finish_mutex);
             return (NULL);
         }
-        pthread_mutex_unlock(&info->finish_mutex);
 
         usleep(500);
     }
