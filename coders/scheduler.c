@@ -56,7 +56,7 @@ static void	grant_dongles(t_coder *coder)
 /*
 ** try grant compile permission
 */
-static void	try_grant(t_coder *coder)
+void	try_grant(t_coder *coder)
 {
 	t_dongle	*first;
 	t_dongle	*second;
@@ -89,21 +89,16 @@ void	*scheduler_routine(void *arg)
 {
 	t_info	*info;
 	int		i;
-
 	info = (t_info *)arg;
-
 	while (!simulation_stopped(info))
 	{
 		i = 0;
-
 		while (i < info->nb_coders)
 		{
 			try_grant(&info->coders[i]);
 			i++;
 		}
-
 		usleep(500);
 	}
-
 	return (NULL);
 }

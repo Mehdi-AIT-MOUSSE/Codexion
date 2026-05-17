@@ -14,30 +14,31 @@ void *monitor_routine(void *arg)
 
         while (i < info->nb_coders)
         {
+            pthread_mutex_lock(&info->finish_mutex);
+            finish = info->finished_coders;
+            pthread_mutex_unlock(&info->finish_mutex);
+          
+            if (finish >= info->nb_coders)
+            {
+                stop_simulation(info);
+                return (NULL);
+            }
+
             pthread_mutex_lock(&info->coders[i].mutex);
 
-            if (get_time_ms() - info->coders[i].last_compile_start > info->t_burnout)
+            if (!info->coders[i].done && get_time_ms() - info->coders[i].last_compile_start > info->t_burnout)
             {
                 log_state(&info->coders[i], "burned out");
                 pthread_mutex_unlock(&info->coders[i].mutex);
                 stop_simulation(info);
                 return (NULL);
             }
-
+            
             pthread_mutex_unlock(&info->coders[i].mutex);
 
             i++;
         }
 
-        pthread_mutex_lock(&info->finish_mutex);
-        finish = info->finished_coders;
-        pthread_mutex_unlock(&info->finish_mutex);
-      
-        if (finish >= info->nb_coders)
-        {
-            stop_simulation(info);
-            return (NULL);
-        }
 
         usleep(500);
     }

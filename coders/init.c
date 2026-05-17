@@ -17,7 +17,7 @@ static int		init_coders(t_info *info)
         
         info->coders[i].last_compile_start = info->start_time;
         
-        info->coders[i].request_time = 0;
+        info->coders[i].done = 0;
         
         info->coders[i].granted = 0;
 
@@ -102,8 +102,8 @@ int start_simulation(t_info *info)
         i++;
     }
 
-    pthread_join(info->monitor, NULL);
     pthread_join(info->scheduler_thread, NULL);
+    pthread_join(info->monitor, NULL);
 
     return (0);
 }

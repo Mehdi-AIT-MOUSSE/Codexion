@@ -54,7 +54,7 @@ struct s_coder
 	int					compile_count;
 	
 	long				last_compile_start;
-	long				request_time;
+	long				done;
     int					granted;
 	
 	pthread_t			thread;
@@ -148,7 +148,8 @@ void	log_state(t_coder *coder, char *msg);
 int		simulation_stopped(t_info *info);
 void	stop_simulation(t_info *info);
 
-
+// scheduler_routine
+void	try_grant(t_coder *coder);
 
 
 /*
