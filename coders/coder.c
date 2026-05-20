@@ -15,6 +15,7 @@ int take_dongle(t_coder *coder, t_dongle *dongle)
 
     pthread_mutex_lock(&dongle->mutex);
     add_to_heap(&dongle->waiters, coder);
+    check_preority(&dongle->waiters, coder->info->scheduler);
     while (!simulation_stopped(coder->info))
     {
 

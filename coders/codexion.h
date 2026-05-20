@@ -16,9 +16,7 @@ typedef struct s_coder		t_coder;
 typedef struct s_dongle		t_dongle;
 typedef struct s_heap		t_heap;
 
-/*
-** Priority queue / heap
-*/
+// Priority queue / heap
 struct s_heap
 {
 	t_coder	**data;
@@ -26,9 +24,7 @@ struct s_heap
 	int		capacity;
 };
 
-/*
-** Dongle
-*/
+// Dongle
 struct s_dongle
 {
 	int					id;
@@ -42,9 +38,7 @@ struct s_dongle
 	t_heap				waiters;
 };
 
-/*
-** Coder
-*/
+// Coder
 struct s_coder
 {
 	int					id;
@@ -63,9 +57,7 @@ struct s_coder
 	t_info				*info;
 };
 
-/*
-** Global simulation info
-*/
+// Global simulation info
 struct s_info
 {
 	int					nb_coders;
@@ -98,76 +90,39 @@ struct s_info
 	t_coder				*coders;
 };
 
-/*
-** Parsing
-*/
+// Parsing
 int parse_args(int argc, char **argv, t_info *info);
 
-/*
-** Initialization
-*/
+// Initialization
 int		init_info(t_info *info);
-// int		init_dongles(t_info *info);
-// int		init_coders(t_info *info);
+int start_simulation(t_info *info);
 
-int start_simulation(t_info *info); // start_simulation.c
-
-/*
-** Threads
-*/
+// Threads
 void	*coder_routine(void *arg);
-void	*scheduler_routine(void *arg);
 void	*monitor_routine(void *arg);
 
-// coder
-void	release_dongles(t_coder *coder);
+// Time
+long	get_time_ms(void);
+long	timestamp_ms(t_info *info);
 
-/*
-** Time
-*/
-long	get_time_ms(void);  //parse.c
-long	timestamp_ms(t_info *info); //log.c
-
-/*
-** Sleep
-*/
+// Sleep
 void	precise_sleep(long ms, t_info *info);
 
-/*
-** Logging
-*/
+// Logging
 void	log_state(t_coder *coder, char *msg);
 
-/*
-** Stop handling
-*/
+// Stop handling
 int		simulation_stopped(t_info *info);
 void	stop_simulation(t_info *info);
 
-// scheduler_routine
-void	try_grant(t_coder *coder);
-
-
-/*
-** Dongles
-*/
-// int		take_dongles(t_coder *coder);
-// void	release_dongles(t_coder *coder);
-
-/*
-** Heap / Queue
-*/
+// Heap / Queue
 void heap_init(t_dongle *dongle, int capacity);
 int add_to_heap(t_heap *waiters, t_coder *coder);
 void	pop_from_heap(t_heap *waiters);
-void	remove_from_heap(t_heap *waiters, t_coder *coder);
-t_coder	*heap_top(t_heap *waiters);
 void	swap_heap(t_heap *waiters);
+void	check_preority(t_heap *waiters, int scheduler);
 
-
-/*
-** Cleanup
-*/
+// Cleanup
 void	cleanup(t_info *info);
 
 #endif
