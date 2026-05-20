@@ -1,26 +1,5 @@
 #include "codexion.h"
 
-// void	release_dongles(t_coder *coder)
-// {
-// 	long	now;
-
-// 	now = get_time_ms();
-
-// 	pthread_mutex_lock(&coder->left->mutex);
-
-// 	coder->left->taken = 0;
-// 	coder->left->released_at = now;
-
-// 	pthread_mutex_unlock(&coder->left->mutex);
-
-// 	pthread_mutex_lock(&coder->right->mutex);
-
-// 	coder->right->taken = 0;
-// 	coder->right->released_at = now;
-
-// 	pthread_mutex_unlock(&coder->right->mutex);
-// }
-
 void drop_dongle(t_dongle *dongle)
 {
     pthread_mutex_lock(&dongle->mutex);
@@ -29,7 +8,6 @@ void drop_dongle(t_dongle *dongle)
     pthread_cond_broadcast(&dongle->cond);
     pthread_mutex_unlock(&dongle->mutex);
 }
-
 
 int take_dongle(t_coder *coder, t_dongle *dongle)
 {
@@ -42,7 +20,6 @@ int take_dongle(t_coder *coder, t_dongle *dongle)
 
         if (dongle->waiters.data[0] == coder && !dongle->taken)
         {
-            // the fisrt issue you forget dongle_cooldown from parser !!
             cool_down = coder->info->dongle_cooldown - (get_time_ms() - dongle->released_at);
 
             if (cool_down <= 0)
@@ -51,10 +28,9 @@ int take_dongle(t_coder *coder, t_dongle *dongle)
             pthread_mutex_unlock(&dongle->mutex);
             precise_sleep(cool_down, coder->info);     
             pthread_mutex_lock(&dongle->mutex);                        
-            continue;
         }
-
-        pthread_cond_wait(&dongle->cond, &dongle->mutex);
+        else
+            pthread_cond_wait(&dongle->cond, &dongle->mutex);
     }
     if (simulation_stopped(coder->info))
     {
@@ -70,7 +46,6 @@ int take_dongle(t_coder *coder, t_dongle *dongle)
 }
 
 
-
 void *coder_routine(void *arg)
 {
     t_coder *coder;
@@ -78,16 +53,10 @@ void *coder_routine(void *arg)
 	t_dongle	*second;
     
     
-    int finnish = 0;
-    // avoid deadlock
+    int coder_finnish = 0;
     coder = (t_coder *)arg;
     
-
-	// if (coder->id % 2)
-    //     usleep(100);
-    
-    // if (coder->left->id < coder->right->id)
-	if (coder->id % 2)
+    if (coder->left->id < coder->right->id)
 	{
         first = coder->left;
 		second = coder->right;
@@ -98,27 +67,22 @@ void *coder_routine(void *arg)
 		second = coder->left;
 	}
     
-    
     while (!simulation_stopped(coder->info))
     {
-        
+        pthread_mutex_lock(&coder->mutex);
         if (!take_dongle(coder, first))
+        {
+            pthread_mutex_unlock(&coder->mutex);            
             return (NULL);
-
-
+        }
         
         if (!take_dongle(coder, second))
         {
+            pthread_mutex_unlock(&coder->mutex);
             drop_dongle(first);
             return (NULL);
         }
-
-
-        
-        pthread_mutex_lock(&coder->mutex);
-        
-        log_state(coder, "is compiling");
-        // after taking the dongles
+            
         coder->last_compile_start = get_time_ms();        
         coder->compile_count++;
         
@@ -127,118 +91,37 @@ void *coder_routine(void *arg)
             pthread_mutex_lock(&coder->info->finish_mutex);
             coder->info->finished_coders++;
             pthread_mutex_unlock(&coder->info->finish_mutex);
-            finnish = 1;
+            coder_finnish = 1;
             coder->done = 1;
         }
         
         pthread_mutex_unlock(&coder->mutex);
         
         // Compiling
+        log_state(coder, "is compiling");
         precise_sleep(coder->info->t_compile, coder->info);
 
-        // release_dongles;
         drop_dongle(first);
         drop_dongle(second);
-        
-        if (finnish)
-        {
-            log_state(coder, "is debugging");
-            log_state(coder, "is refactoring");
-        }
-        
-        if (simulation_stopped(coder->info))
+
+        if (coder_finnish || simulation_stopped(coder->info))
             return (NULL);
-        // Debugging & Refactoring
+        
+        // Debugging & Refactoring only if not done
         log_state(coder, "is debugging");
         precise_sleep(coder->info->t_debug, coder->info);
         
-
+        if (simulation_stopped(coder->info))
+            return (NULL);
+        
+        log_state(coder, "is refactoring");
+        precise_sleep(coder->info->t_refactor, coder->info);
+        
         if (simulation_stopped(coder->info))
             return (NULL);
             
-        log_state(coder, "is refactoring");
-        precise_sleep(coder->info->t_refactor, coder->info);
-
-        if (simulation_stopped(coder->info))
-            return (NULL);
-
         usleep(500);
     }
     
     return (NULL);
 }
-
-
-
-
-
-
-
-// void *coder_routine(void *arg)
-// {
-//     t_coder *coder;
-//     int     finish;
-
-//     coder = (t_coder *)arg;
-//     finish = 0;
-//     while (!simulation_stopped(coder->info))
-//     {
-//         if (is_done(coder))
-//             return (NULL);
-
-//         pthread_mutex_lock(&coder->left->mutex);
-// 		add_to_heap(&coder->left->waiters, coder);
-// 		pthread_mutex_unlock(&coder->left->mutex);
-
-// 		pthread_mutex_lock(&coder->right->mutex);
-// 		add_to_heap(&coder->right->waiters, coder);
-// 		pthread_mutex_unlock(&coder->right->mutex);
-
-        
-//         pthread_mutex_lock(&coder->mutex);
-        
-//         // wait_permition(coder);
-//         while (!coder->granted && !simulation_stopped(coder->info))
-//             pthread_cond_wait(&coder->cond, &coder->mutex);
-//         coder->granted = 0;
-        
-//         // after taking the dongle
-//         coder->last_compile_start = get_time_ms();        
-//         coder->compile_count++;
-        
-//         if (coder->compile_count == coder->info->required_compiles)
-//         {
-//             pthread_mutex_lock(&coder->info->finish_mutex);
-//             coder->info->finished_coders++;
-//             pthread_mutex_unlock(&coder->info->finish_mutex);
-//             coder->done = 1;
-//             finish = 1;
-//         }
-
-//         pthread_mutex_unlock(&coder->mutex);
-        
-//         log_state(coder, "is compiling");
-//         precise_sleep(coder->info->t_compile, coder->info);
-
-//         release_dongles(coder);
-
-//         if (finish)
-// 	        return (NULL);
-
-//         if (simulation_stopped(coder->info))
-// 	        return (NULL);
-//         log_state(coder, "is debugging");
-//         precise_sleep(coder->info->t_debug, coder->info);
-
-
-//         if (simulation_stopped(coder->info))
-// 	        return (NULL);
-//         log_state(coder, "is refactoring");
-//         precise_sleep(coder->info->t_refactor, coder->info);
-
-//         if (simulation_stopped(coder->info))
-//     	    return (NULL);
-//     }
-
-//     return (NULL);
-// }

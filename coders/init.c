@@ -18,8 +18,6 @@ static int		init_coders(t_info *info)
         info->coders[i].last_compile_start = info->start_time;
         
         info->coders[i].done = 0;
-        
-        info->coders[i].granted = 0;
 
         info->coders[i].left = &info->dongles[i];
         
@@ -50,7 +48,7 @@ static int		init_dongles(t_info *info)
 
         info->dongles[i].taken = 0;
 
-        info->dongles[i].released_at = info->start_time;
+        info->dongles[i].released_at = 0;
 
         heap_init(&info->dongles[i], 2);
 

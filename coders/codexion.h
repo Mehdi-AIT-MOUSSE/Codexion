@@ -53,7 +53,6 @@ struct s_coder
 	
 	long				last_compile_start;
 	long				done;
-    int					granted;
 	
 	pthread_t			thread;
     pthread_mutex_t     mutex;
