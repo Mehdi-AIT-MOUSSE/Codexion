@@ -42,7 +42,8 @@ int take_dongle(t_coder *coder, t_dongle *dongle)
 
         if (dongle->waiters.data[0] == coder && !dongle->taken)
         {
-            cool_down = get_time_ms() - dongle->released_at; 
+            // the fisrt issue you forget dongle_cooldown from parser !!
+            cool_down = coder->info->dongle_cooldown - (get_time_ms() - dongle->released_at);
 
             if (cool_down <= 0)
                 break ;
