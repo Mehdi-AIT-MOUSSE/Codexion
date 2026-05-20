@@ -53,8 +53,6 @@ void	check_preority(t_heap *waiters, int scheduler)
 	long	first_deadline;
 	long	second_deadline;
 
-	t_coder	*b;
-
 	if (waiters->size != 2 || scheduler == FIFO)
 		return ;
 

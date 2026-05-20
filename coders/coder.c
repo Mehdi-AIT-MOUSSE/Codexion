@@ -77,6 +77,12 @@ void *coder_routine(void *arg)
             return (NULL);
         }
         
+        if (coder->info->nb_coders == 1)
+        {    
+            pthread_mutex_unlock(&coder->mutex);
+            return (NULL);
+        }
+        
         if (!take_dongle(coder, second))
         {
             pthread_mutex_unlock(&coder->mutex);
