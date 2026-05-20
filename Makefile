@@ -9,8 +9,8 @@ SRCS    = $(SRCDIR)/main.c   \
 		  $(SRCDIR)/stop.c  \
           $(SRCDIR)/heap.c \
           $(SRCDIR)/coder.c \
-          $(SRCDIR)/scheduler.c \
           $(SRCDIR)/monitor.c 
+#           $(SRCDIR)/scheduler.c 
 OBJS    = $(SRCS:.c=.o)
 
 all: $(NAME)

@@ -20,17 +20,27 @@ void	stop_simulation(t_info *info)
     info->stop = 1;
     pthread_mutex_unlock(&info->stop_mutex);
 
+
+
+	i = 0;
+    while (i < info->nb_coders)
+    {
+        pthread_mutex_lock(&info->dongles[i].mutex);
+        pthread_cond_broadcast(&info->dongles[i].cond);
+        pthread_mutex_unlock(&info->dongles[i].mutex);
+        i++;
+    }
     	/*
 	** wake all sleeping coders
 	*/
-	i = 0;
-	while (i < info->nb_coders)
-	{
-		pthread_mutex_lock(&info->coders[i].mutex);
-		pthread_cond_broadcast(&info->coders[i].cond);
-		pthread_mutex_unlock(&info->coders[i].mutex);
-		i++;
-	}
+	// i = 0;
+	// while (i < info->nb_coders)
+	// {
+	// 	pthread_mutex_lock(&info->coders[i].mutex);
+	// 	pthread_cond_broadcast(&info->coders[i].cond);
+	// 	pthread_mutex_unlock(&info->coders[i].mutex);
+	// 	i++;
+	// }
 }
 
 void	log_state(t_coder *coder, char *msg)

@@ -34,13 +34,11 @@ struct s_dongle
 	int					id;
 	int					taken;
 
-	long				available_at;
-
 	long				released_at;
 
 	pthread_mutex_t		mutex;
-	
-	
+	pthread_cond_t		cond;
+		
 	t_heap				waiters;
 };
 
@@ -59,7 +57,6 @@ struct s_coder
 	
 	pthread_t			thread;
     pthread_mutex_t     mutex;
-	pthread_cond_t		cond;
 
 	t_dongle			*left;
 	t_dongle			*right;
@@ -163,7 +160,7 @@ void	try_grant(t_coder *coder);
 */
 void heap_init(t_dongle *dongle, int capacity);
 int add_to_heap(t_heap *waiters, t_coder *coder);
-t_coder	*pop_from_heap(t_heap *waiters);
+void	pop_from_heap(t_heap *waiters);
 void	remove_from_heap(t_heap *waiters, t_coder *coder);
 t_coder	*heap_top(t_heap *waiters);
 void	swap_heap(t_heap *waiters);

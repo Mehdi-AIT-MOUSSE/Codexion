@@ -85,20 +85,20 @@ void	try_grant(t_coder *coder)
 /*
 ** central scheduler thread
 */
-void	*scheduler_routine(void *arg)
-{
-	t_info	*info;
-	int		i;
-	info = (t_info *)arg;
-	while (!simulation_stopped(info))
-	{
-		i = 0;
-		while (i < info->nb_coders)
-		{
-			try_grant(&info->coders[i]);
-			i++;
-		}
-		usleep(500);
-	}
-	return (NULL);
-}
+// void	*scheduler_routine(void *arg)
+// {
+// 	t_info	*info;
+// 	int		i;
+// 	info = (t_info *)arg;
+// 	while (!simulation_stopped(info))
+// 	{
+// 		i = 0;
+// 		while (i < info->nb_coders)
+// 		{
+// 			try_grant(&info->coders[i]);
+// 			i++;
+// 		}
+// 		usleep(500);
+// 	}
+// 	return (NULL);
+// }

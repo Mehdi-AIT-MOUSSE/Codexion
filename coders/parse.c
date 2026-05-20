@@ -14,7 +14,7 @@ static void fill_the_info(char **argv, t_info *info)
     else
         info->scheduler = EDF;
 
-    info->start_time = get_time_ms();
+
     info->stop = 0;
     info->finished_coders = 0;
 }

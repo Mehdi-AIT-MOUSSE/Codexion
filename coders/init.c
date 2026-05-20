@@ -28,7 +28,6 @@ static int		init_coders(t_info *info)
         info->coders[i].info = info;
         
         pthread_mutex_init(&info->coders[i].mutex,NULL);
-        pthread_cond_init(&info->coders[i].cond, NULL);
 
         i++;
     }
@@ -51,14 +50,13 @@ static int		init_dongles(t_info *info)
 
         info->dongles[i].taken = 0;
 
-        info->dongles[i].available_at = 0;
-
-        info->dongles[i].released_at = 0;
+        info->dongles[i].released_at = info->start_time;
 
         heap_init(&info->dongles[i], 2);
 
         pthread_mutex_init(&info->dongles[i].mutex, NULL);
 
+        pthread_cond_init(&info->dongles[i].cond, NULL);
 
         i++;
     }
@@ -68,6 +66,8 @@ static int		init_dongles(t_info *info)
 
 int		init_info(t_info *info)
 {
+    info->start_time = get_time_ms();
+
     pthread_mutex_init(&info->stop_mutex, NULL);
     pthread_mutex_init(&info->print_mutex, NULL);
     pthread_mutex_init(&info->finish_mutex, NULL);
@@ -92,7 +92,7 @@ int start_simulation(t_info *info)
         i++;
     }
 
-    pthread_create(&info->scheduler_thread,NULL,scheduler_routine,info);
+    // pthread_create(&info->scheduler_thread,NULL,scheduler_routine,info);
     pthread_create(&info->monitor,NULL,monitor_routine,info);
 
     i = 0;
@@ -102,7 +102,7 @@ int start_simulation(t_info *info)
         i++;
     }
 
-    pthread_join(info->scheduler_thread, NULL);
+    // pthread_join(info->scheduler_thread, NULL);
     pthread_join(info->monitor, NULL);
 
     return (0);
@@ -120,7 +120,7 @@ void cleanup(t_info *info)
         free(info->dongles[i].waiters.data);
 
         pthread_mutex_destroy(&info->coders[i].mutex);
-        pthread_cond_destroy(&info->coders[i].cond);
+        pthread_cond_destroy(&info->dongles[i].cond);
         
         i++;
     }
