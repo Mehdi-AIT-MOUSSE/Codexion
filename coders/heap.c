@@ -50,14 +50,24 @@ void	swap_heap(t_heap *waiters)
 
 void	check_preority(t_heap *waiters, int scheduler)
 {
+	t_coder *a;
+	t_coder *b;
 	long	first_deadline;
 	long	second_deadline;
 
 	if (waiters->size != 2 || scheduler == FIFO)
 		return ;
 
-    first_deadline = waiters->data[0]->last_compile_start + waiters->data[0]->info->t_burnout;
-    second_deadline = waiters->data[1]->last_compile_start + waiters->data[1]->info->t_burnout;
+	a = waiters->data[0];
+	b = waiters->data[1];
+
+	pthread_mutex_lock(&a->mutex);
+    first_deadline = a->last_compile_start + a->info->t_burnout;
+	pthread_mutex_unlock(&a->mutex);
+    
+	pthread_mutex_lock(&b->mutex);
+	second_deadline = b->last_compile_start + b->info->t_burnout;
+	pthread_mutex_unlock(&b->mutex);
 
 	if (second_deadline < first_deadline)
 		swap_heap(waiters);

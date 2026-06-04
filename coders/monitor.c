@@ -1,46 +1,48 @@
 #include "codexion.h"
 
-void *monitor_routine(void *arg)
+int	check_burnout(t_coder *coder)
 {
-    t_info  *info;
-    int     i;
-    int     finish;
+	pthread_mutex_lock(&coder->mutex);
+	if (!coder->done)
+	{
+		if (get_time_ms() - coder->last_compile_start >= coder->info->t_burnout)
+		{
+			log_state(coder, "burned out");
+			pthread_mutex_unlock(&coder->mutex);
+			return (0);
+		}
+	}
+	pthread_mutex_unlock(&coder->mutex);
+	return (1);
+}
 
-    info = (t_info *)arg;
+void	*monitor_routine(void *arg)
+{
+	t_info	*info;
+	int		i;
 
-    while (!simulation_stopped(info))
-    {
-        // per-coder burnout check
-        i = 0;
-        while (i < info->nb_coders)
-        {
-            pthread_mutex_lock(&info->coders[i].mutex);
-            if (!info->coders[i].done && get_time_ms() - info->coders[i].last_compile_start >= info->t_burnout)
-            {
-                log_state(&info->coders[i], "burned out");
-                pthread_mutex_unlock(&info->coders[i].mutex);
-                stop_simulation(info);
-                return (NULL);
-            }
-            pthread_mutex_unlock(&info->coders[i].mutex);
-            
-            pthread_mutex_lock(&info->finish_mutex);
-            finish = info->finished_coders;
-            pthread_mutex_unlock(&info->finish_mutex);
-    
-            if (finish >= info->nb_coders)
-            {
-                stop_simulation(info);
-                return (NULL);
-            }
-
-            i++;
-        }
-
-        // global finish check, once per pass
-
-        usleep(500);
-    }
-
-    return (NULL);
+	info = (t_info *)arg;
+	while (!simulation_stopped(info))
+	{
+		i = 0;
+		while (i < info->nb_coders)
+		{
+			if (!check_burnout(&info->coders[i]))
+			{
+				stop_simulation(info);
+				return (NULL);
+			}
+			pthread_mutex_lock(&info->finish_mutex);
+			if (info->finished_coders >= info->nb_coders)
+			{
+				pthread_mutex_unlock(&info->finish_mutex);
+				stop_simulation(info);
+				return (NULL);
+			}
+			pthread_mutex_unlock(&info->finish_mutex);
+			i++;
+		}
+		usleep(500);
+	}
+	return (NULL);
 }

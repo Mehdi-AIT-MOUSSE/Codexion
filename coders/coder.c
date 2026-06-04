@@ -70,26 +70,16 @@ void *coder_routine(void *arg)
     
     while (!simulation_stopped(coder->info))
     {
-        pthread_mutex_lock(&coder->mutex);
         if (!take_dongle(coder, first))
-        {
-            pthread_mutex_unlock(&coder->mutex);            
             return (NULL);
-        }
-        
-        if (coder->info->nb_coders == 1)
-        {    
-            pthread_mutex_unlock(&coder->mutex);
-            return (NULL);
-        }
-        
+                
         if (!take_dongle(coder, second))
         {
-            pthread_mutex_unlock(&coder->mutex);
             drop_dongle(first);
             return (NULL);
         }
-            
+        
+        pthread_mutex_lock(&coder->mutex);
         coder->last_compile_start = get_time_ms();        
         coder->compile_count++;
         
