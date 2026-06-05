@@ -53,6 +53,8 @@ static int		init_dongles(t_info *info)
         heap_init(&info->dongles[i], 2);
 
         pthread_mutex_init(&info->dongles[i].mutex, NULL);
+        
+        pthread_mutex_init(&info->dongles[i].schadular, NULL);
 
         pthread_cond_init(&info->dongles[i].cond, NULL);
 

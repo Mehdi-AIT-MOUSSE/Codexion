@@ -42,7 +42,7 @@ void	*monitor_routine(void *arg)
 			pthread_mutex_unlock(&info->finish_mutex);
 			i++;
 		}
-		usleep(500);
+		usleep(100);
 	}
 	return (NULL);
 }

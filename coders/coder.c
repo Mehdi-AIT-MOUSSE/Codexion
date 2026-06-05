@@ -12,9 +12,11 @@ void drop_dongle(t_dongle *dongle)
 int take_dongle(t_coder *coder, t_dongle *dongle)
 {
     long cool_down;
-
-    pthread_mutex_lock(&dongle->mutex);
+    pthread_mutex_lock(&dongle->schadular);
     add_to_heap(&dongle->waiters, coder);
+    pthread_mutex_unlock(&dongle->schadular);
+    usleep(500);
+    pthread_mutex_lock(&dongle->mutex);
     check_preority(&dongle->waiters, coder->info->scheduler);
     while (!simulation_stopped(coder->info))
     {
@@ -38,8 +40,10 @@ int take_dongle(t_coder *coder, t_dongle *dongle)
         pthread_mutex_unlock(&dongle->mutex);
         return (0);   
     }
-
+    pthread_mutex_lock(&dongle->schadular);
     pop_from_heap(&dongle->waiters);
+    pthread_mutex_unlock(&dongle->schadular);
+
     dongle->taken = 1;
     log_state(coder, "has taken a dongle");
     pthread_mutex_unlock(&dongle->mutex);
@@ -57,7 +61,10 @@ void *coder_routine(void *arg)
     int coder_finnish = 0;
     coder = (t_coder *)arg;
     
-    if (coder->left->id < coder->right->id)
+    // if (coder->left->id < coder->right->id)
+    if (coder->id % 2 == 0)
+        usleep(100);
+    if (coder->id % 2 == 0)
 	{
         first = coder->left;
 		second = coder->right;
@@ -117,7 +124,7 @@ void *coder_routine(void *arg)
         if (simulation_stopped(coder->info))
             return (NULL);
             
-        usleep(500);
+        usleep(100);
     }
     
     return (NULL);

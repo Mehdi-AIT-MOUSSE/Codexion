@@ -28,6 +28,6 @@ void precise_sleep(long ms, t_info *info)
     {
         if (get_time_ms() - start >= ms)
             break ;
-        usleep(500);
+        usleep(10);
     }
 }

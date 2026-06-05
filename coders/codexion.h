@@ -32,9 +32,10 @@ struct s_dongle
 
 	long				released_at;
 
+	pthread_mutex_t     schadular;
 	pthread_mutex_t		mutex;
 	pthread_cond_t		cond;
-		
+	
 	t_heap				waiters;
 };
 
@@ -80,11 +81,12 @@ struct s_info
     int                 finished_coders;
 
 	pthread_t			monitor;
-	pthread_t			scheduler_thread;
 
 	pthread_mutex_t		stop_mutex;
 	pthread_mutex_t		print_mutex;
     pthread_mutex_t     finish_mutex;
+
+
 
 	t_dongle			*dongles;
 	t_coder				*coders;
