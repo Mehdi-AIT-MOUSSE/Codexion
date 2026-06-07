@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   monitor.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mait-mou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/07 01:45:41 by mait-mou          #+#    #+#             */
+/*   Updated: 2026/06/07 01:45:43 by mait-mou         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
 int	check_burnout(t_coder *coder)
@@ -9,6 +21,7 @@ int	check_burnout(t_coder *coder)
 		{
 			log_state(coder, "burned out");
 			pthread_mutex_unlock(&coder->mutex);
+			stop_simulation(coder->info);
 			return (0);
 		}
 	}
@@ -28,10 +41,7 @@ void	*monitor_routine(void *arg)
 		while (i < info->nb_coders)
 		{
 			if (!check_burnout(&info->coders[i]))
-			{
-				stop_simulation(info);
 				return (NULL);
-			}
 			pthread_mutex_lock(&info->finish_mutex);
 			if (info->finished_coders >= info->nb_coders)
 			{
