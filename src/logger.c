@@ -54,11 +54,7 @@ long	get_time_ms(void)
 {
 	struct timeval	tv;
 
-	if (gettimeofday(&tv, NULL) == -1)
-	{
-		write(2, "gettimeofday failed\n", 20);
-		exit(1);
-	}
+	gettimeofday(&tv, NULL);
 	return ((long)tv.tv_sec * 1000L + (long)tv.tv_usec / 1000L);
 }
 
