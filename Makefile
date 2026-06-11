@@ -1,7 +1,7 @@
 NAME    = codexion
 CC      = cc
 CFLAGS  = -Wall -Wextra -Werror -pthread
-SRCDIR  = .
+SRCDIR  = src/
 SRCS    = $(SRCDIR)/main.c   \
           $(SRCDIR)/parse.c  \
 		  $(SRCDIR)/logger.c  \
