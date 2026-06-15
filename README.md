@@ -1,5 +1,5 @@
 *This project has been created as part of the 42 curriculum by mait-mou.*
-
+![alt text](img/banner.png)
 # Codexion
 
 ## Description
@@ -71,6 +71,8 @@ All arguments are mandatory. The program rejects negative numbers, non-integers,
 **Log serialization** — Every call to `log_state()` acquires `info->print_mutex` before writing, so two messages can never be interleaved on the same line.
 
 ## Thread Synchronization Mechanisms
+
+![alt text](img/diagram.png)
 
 **Mutexes** (`pthread_mutex_t`):
 - `dongle->mutex` — guards `taken`, `released_at`, and the waiter heap for each dongle
